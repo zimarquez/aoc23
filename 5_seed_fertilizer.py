@@ -32,44 +32,71 @@ def parse(filepath):
 
 def translate(val, source, destination, max_range):
     print(f"{val=} {source=}, {destination=}, {max_range=}")
-    if val >= destination:
-        #print(f"True: {val} >= {destination}")
-        if (val - destination) <= max_range:
-            #print(f"True: {val - destination} <= {max_range}")
-            return destination + (val-source)
+    if val >= source:
+        print(f"True: {val} >= {source}")
+        if val - source <= max_range:
+            print(f"True: {val - destination} <= {source + max_range}")
+            print(f"Res = {destination} + ({val} - {source})")
+            return str(destination + (val-source))
         else:
             pass
-            #print(f"False: {val - destination} <= {max_range}")
+            print(f"False: {val - source} <= {source + max_range}")
     else:
         pass
-        #print(f"False: {val} <= {destination}")
-    return val
+        print(f"False: {val} >= {source}")
+    return str(val)
 
 def resource_check(input_values, resource):
-    out = []
-    for val in input_values:
+    out = {}
+    for key,val in input_values.items():
         print(f"\nStarting: {val}")
-        for entry in resource.values():
-            out.append(translate(int(val),entry['source'],entry['destination'],entry['range']))
-            #print(f"{val}: {new_val}")
-    print(out)
+        for branch in val:
+            for entry in resource.values():
+                new_val = translate(int(branch),entry['source'],entry['destination'],entry['range'])
+                if new_val != branch:
+                    try:
+                        out[key].add(new_val)
+                    except:
+                        out[key] = {new_val}
+                    print(new_val)
+            if out.get(key) == None:
+                out[key] = {branch}
+                print(branch)
+    #print(out)
     return out
 
 def part1(seeds, maps):
     seed_locations = seeds
     seed_locations = {}
     for seed in seeds:
-        seed_locations[seed] = seed
+        seed_locations[seed] = {seed}
 
+    print(seed_locations)
     seed_locations = resource_check(seed_locations, maps['seed-to-soil map'])
+    print(seed_locations)
     seed_locations = resource_check(seed_locations, maps['soil-to-fertilizer map'])
+    print(seed_locations)
     seed_locations = resource_check(seed_locations, maps['fertilizer-to-water map'])
+    print(seed_locations)
     seed_locations = resource_check(seed_locations, maps['water-to-light map'])
+    print(seed_locations)
     seed_locations = resource_check(seed_locations, maps['light-to-temperature map'])
     seed_locations = resource_check(seed_locations, maps['temperature-to-humidity map'])
     seed_locations = resource_check(seed_locations, maps['humidity-to-location map'])
+    print(seed_locations)
+
+    smallest = -1
+    for seed,locations in seed_locations.items():
+        for location in locations:
+            if smallest == -1:
+                print(f"BOO")
+                smallest = int(location)
+            if int(location) < int(smallest):
+                smallest = int(location)
+                print(f"smallest: {location}")
+
 def main():
-    my_input = "5_test.txt"
+    my_input = "5_input.txt"
     seeds, maps = parse(my_input)
     print(f"seeds: {seeds}")
     #print_dict(maps)
